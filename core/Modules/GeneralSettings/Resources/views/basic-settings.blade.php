@@ -15,7 +15,7 @@
                         <h4 class="customMarkup__single__title">{{ __('Basic Settings') }}</h4>
                         <x-validation.error/>
                         <div class="customMarkup__single__inner mt-4">
-                            <form action="{{route('admin.general.settings.basic')}}" method="POST">
+                            <form action="{{route('admin.general.settings.basic')}}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="single-input mb-3">
                                     <label for="site_title" class="label-title mb-1">{{__('Site Title')}}</label>
