@@ -1,0 +1,87 @@
+.social-icon-picker {
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.icon-container {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+    height: 250px; /* Fixed height */
+    overflow-y: auto; /* Scrollable */
+    padding: 12px;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 8px;
+}
+
+.icon-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    position: relative;
+}
+
+.icon-option:hover {
+    border-color: #007bff;
+    background: #e7f3ff;
+    transform: scale(1.05);
+}
+
+.icon-option.selected {
+    border-color: #007bff;
+    background: #007bff;
+    color: white;
+}
+
+
+
+.icon-option i {
+    font-size: 20px;
+}
+
+/* Custom scrollbar for the icon container */
+.icon-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.icon-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.icon-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.icon-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Style for empty state when no icons match search */
+.no-icons-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    color: #6c757d;
+    font-style: italic;
+}
