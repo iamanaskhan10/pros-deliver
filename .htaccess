@@ -4,6 +4,9 @@
     </IfModule>
     RewriteEngine On
     RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{DOCUMENT_ROOT}/core/public/$1 -f
+    RewriteRule ^(assets/.+)$ core/public/$1 [L]
     RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
     RewriteRule ^(.*) - [E=BASE:%1]
     RewriteCond %{ENV:REDIRECT_STATUS} ^$

@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Support\Facades\Auth;
 
 class MaintainsMode
 {
@@ -17,7 +16,7 @@ class MaintainsMode
     public function handle($request, Closure $next)
     {
         $maintenance = get_static_option('site_maintenance_mode', '');
-        if ($maintenance === 'on' && ! Auth::guard('admin')->check()) {
+        if ($maintenance === 'on') {
             return response()->view('frontend.pages.maintain');
         }
         return $next($request);
