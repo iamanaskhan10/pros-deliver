@@ -4,6 +4,8 @@ namespace Modules\GeneralSettings\Http\Services;
 
 use App\Mail\BasicMail;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -80,7 +82,7 @@ class GeneralSettingsService
     public function basic_settings($request)
     {
         foreach (['site_title', 'site_tag_line', 'site_footer_copyright'] as $field) {
-            update_static_option($field, $request->input($field));
+            $this->saveStaticOption($field, $request->input($field));
         }
 
         // Checked boxes submit "on"; unchecked boxes are absent and should save empty.
@@ -91,18 +93,39 @@ class GeneralSettingsService
             'site_force_ssl_redirection',
             'site_google_captcha_enable',
         ] as $field) {
-            update_static_option($field, $request->input($field) === 'on' ? 'on' : '');
+            $this->saveStaticOption($field, $request->input($field) === 'on' ? 'on' : '');
         }
 
         if ($request->has('disable_user_email_verify')) {
-            update_static_option('disable_user_email_verify', $request->input('disable_user_email_verify'));
+            $this->saveStaticOption('disable_user_email_verify', $request->input('disable_user_email_verify'));
         }
         if ($request->has('social_login_enable_disable')) {
-            update_static_option('social_login_enable_disable', $request->input('social_login_enable_disable'));
+            $this->saveStaticOption('social_login_enable_disable', $request->input('social_login_enable_disable'));
         }
 
         toastr_success(__('Basic Settings Updated Successfully.'));
         return redirect()->route('admin.general.settings.basic');
+    }
+
+    private function saveStaticOption(string $key, $value): void
+    {
+        $query = DB::table('static_options')->where('option_name', $key);
+
+        if ($query->exists()) {
+            $query->update([
+                'option_value' => $value,
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('static_options')->insert([
+                'option_name' => $key,
+                'option_value' => $value,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        Cache::forget($key);
     }
 
     public function color_settings($request)
