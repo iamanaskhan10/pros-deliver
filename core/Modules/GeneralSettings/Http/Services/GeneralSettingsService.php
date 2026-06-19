@@ -83,7 +83,7 @@ class GeneralSettingsService
             update_static_option($field, $request->input($field));
         }
 
-        // Hidden inputs provide an empty fallback; checked boxes submit "on".
+        // Checked boxes submit "on"; unchecked boxes are absent and should save empty.
         foreach ([
             'site_maintenance_mode',
             'admin_loader_animation',
