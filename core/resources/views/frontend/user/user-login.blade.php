@@ -53,8 +53,8 @@
                             </form>
                             <div class="single-checkbox mt-3">
                                 <div class="checkbox-inline">
-                                    <input class="check-input" name="remember" type="checkbox" id="check15">
-                                    <label class="checkbox-label" for="check15"> {{ __('Remember Me') }} </label>
+                                    <input class="check-input" name="remember" type="checkbox" id="remember">
+                                    <label class="checkbox-label" for="remember"> {{ __('Remember Me') }} </label>
                                 </div>
                                 <div class="forgot-password">
                                     <a href="{{ route('user.forgot.password') }}"
@@ -280,16 +280,22 @@
                         data: {
                             username: $('#username').val(),
                             password: $('#password').val(),
-                            remember: $('#remember').val(),
+                            remember: $('#remember').is(':checked') ? 1 : 0,
+                            _token: "{{ csrf_token() }}"
                         },
                         error: function(data) {
                             var errors = data.responseJSON;
                             erContainer.html('<div class="alert alert-danger"></div>');
-                            $.each(errors.errors, function(index, value) {
+                            if (errors && errors.errors) {
+                                $.each(errors.errors, function(index, value) {
+                                    erContainer.find('.alert.alert-danger').append(
+                                        '<p>' + value + '</p>');
+                                });
+                            } else {
                                 erContainer.find('.alert.alert-danger').append(
-                                    '<p>' + value + '</p>');
-                            });
-                            el.text('{{ __('Login') }}');
+                                    '<p>{{ __('Something went wrong. Please try again.') }}</p>');
+                            }
+                            el.text('{{ __('Sign In Now') }}');
                         },
                         success: function(data) {
                             $('.alert.alert-danger').remove();
@@ -302,7 +308,9 @@
                                     redirectPath =
                                         "{{ url('/' . request()->get('return')) }}";
                                 @endif
-                                window.location = redirectPath;
+                                setTimeout(function(){
+                                    window.location = redirectPath;
+                                }, 500);
                             } else if (data.status == 'influencer-login') {
                                 el.text('{{ __('Redirecting') }}..');
                                 erContainer.html('<div class="alert alert-' + data.type +
@@ -314,11 +322,13 @@
                                         "{{ url('/' . request()->get('return')) }}";
                                 @endif
 
-                                window.location = redirectPath;
+                                setTimeout(function(){
+                                    window.location = redirectPath;
+                                }, 500);
                             } else {
                                 erContainer.html('<div class="alert alert-' + data.type +
                                     '">' + data.msg + '</div>');
-                                el.text('{{ __('Login') }}');
+                                el.text('{{ __('Sign In Now') }}');
                             }
                         }
                     });

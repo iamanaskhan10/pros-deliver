@@ -3,13 +3,14 @@
         <a href="javascript:void(0)" class="navbar-author-flex flex-btn navbar-author-link">
             <div class="navbar-author-thumb">
                 @php
-                    $user = Auth::user();
-                    $filePath = 'assets/uploads/profile/' . $user->image;
-                    $extension = pathinfo($user->image ?? '', PATHINFO_EXTENSION);
+                    $user = Auth::guard('web')->user();
+                    $image = $user->image ?? '';
+                    $filePath = 'assets/uploads/profile/' . $image;
+                    $extension = pathinfo($image, PATHINFO_EXTENSION);
                     $isVideo = in_array(strtolower($extension), ['mp4', 'webm', 'avi', 'mov']);
                 @endphp
 
-                @if ($user->image)
+                @if ($user && $image)
                     @if ($isVideo)
                         {{-- Video avatar --}}
                         <video

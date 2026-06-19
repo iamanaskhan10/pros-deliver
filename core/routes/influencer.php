@@ -12,19 +12,21 @@ use App\Http\Controllers\Frontend\Freelancer\PortfolioController;
 use App\Http\Controllers\Frontend\Freelancer\OrderController;
 use App\Http\Controllers\Frontend\Freelancer\NotificationController;
 use App\Http\Controllers\Frontend\Freelancer\ProposalController;
+use App\Http\Controllers\Frontend\Freelancer\AIProposalController;
+use App\Http\Controllers\Frontend\Freelancer\AIProfileController;
 use App\Http\Controllers\Frontend\Google2FA;
 use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix'=>'influencer','as'=>'influencer.'],function() {
 
-    Route::group(['middleware'=>['auth','Google2FA','globalVariable', 'maintains_mode','setlang']],function(){
+    Route::group(['middleware'=>['auth:web','Google2FA','globalVariable', 'maintains_mode','setlang']],function(){
         Route::controller(InfluencerController::class)->group(function () {
             Route::get('profile/logout','logout')->name('logout');
         });
     });
 
-    Route::group(['middleware'=>['auth','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang', 'identityVerified']],function(){
+    Route::group(['middleware'=>['auth:web','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang', 'identityVerified']],function(){
         // Profile general info
         Route::controller(InfluencerController::class)->group(function () {
             Route::get('profile/settings','profile')->name('profile');
@@ -151,6 +153,25 @@ Route::group(['prefix'=>'influencer','as'=>'influencer.'],function() {
             Route::post('/media-upload/alt','alt_change_upload_media_file')->name('upload.media.file.alt.change');
             Route::post('/media-upload/delete','delete_upload_media_file')->name('upload.media.file.delete');
             Route::post('/media-upload/loadmore','get_image_for_loadmore')->name('upload.media.file.loadmore');
+        });
+
+        // AI Proposal Generator
+        Route::controller(AIProposalController::class)->group(function () {
+            Route::post('ai/generate-proposal', 'generate')
+                ->name('ai.proposal.generate')
+                ->middleware('throttle:5,1');
+            Route::get('ai/proposal-status/{uuid}', 'status')
+                ->name('ai.proposal.status');
+        });
+
+        // AI Profile Enhancer
+        Route::controller(AIProfileController::class)->group(function () {
+            Route::post('ai/enhance-profile', 'enhance')
+                ->name('ai.enhance.profile')
+                ->middleware('throttle:3,1');
+            Route::get('ai/enhance-status/{uuid}', 'status')
+                ->name('ai.enhance.status')
+                ->middleware('throttle:30,1');
         });
 
     });

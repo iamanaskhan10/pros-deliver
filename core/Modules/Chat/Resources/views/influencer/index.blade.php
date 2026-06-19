@@ -108,16 +108,19 @@
                                                             id="freelancer-send-message-to-client">{{ __('Send Message') }}</a>
                                                     @endif
                                                 </div>
-                                                @if (get_static_option('file_extensions'))
-                                                    <div class="chat-wrapper-details-footer-btn-right">
+                                                <div class="chat-wrapper-details-footer-btn-right" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                                    <button id="ai-smart-reply-btn"
+                                                            style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                                                        <span id="ai-smart-reply-spinner" style="width:11px;height:11px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:ai-spin .6s linear infinite;display:none;"></span>
+                                                        <span id="ai-smart-reply-btn-text">&#128172; {{ __('Smart Reply') }}</span>
+                                                    </button>
+                                                    @if (get_static_option('file_extensions'))
                                                         <small>{{ __('Supported files:') }}
                                                             {{ implode(', ', json_decode(get_static_option('file_extensions'), true)) }}</small>
-                                                    </div>
-                                                @else
-                                                    <div class="chat-wrapper-details-footer-btn-right">
+                                                    @else
                                                         <small>{{ __('Supported files: jpeg,jpg,png,pdf,gif,docx,zip') }}</small>
-                                                    </div>
-                                                @endif
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -212,7 +215,7 @@
             {{ $arr }}
         };
     </script>
-    <x-chat::influencer.freelancer-chat-js />
+    {{-- Removed duplicate --}}
 
     <script>
         //:get_client_id
@@ -335,4 +338,6 @@
         @endif
     </script>
     <x-summernote.summernote-js />
+    <x-chat::influencer.freelancer-chat-js />
+    @include('chat::influencer.ai-smart-reply-js')
 @endsection

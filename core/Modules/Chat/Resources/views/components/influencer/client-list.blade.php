@@ -1,4 +1,4 @@
-<li class="chat-wrapper-contact-list-item chat_item" data-client-id="{{ $freelancerChat?->client?->id }}">
+<li class="chat-wrapper-contact-list-item chat_item get_client_id" data-client-id="{{ $freelancerChat?->client?->id }}">
     <div class="chat-wrapper-contact-list-flex">
         <div class="chat-wrapper-contact-list-thumb">
             <a href="javascript:void(0)">

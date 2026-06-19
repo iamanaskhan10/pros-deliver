@@ -1,0 +1,67 @@
+{
+    "name": "PromoteInfluencer",
+    "alias": "PromoteInfluencer",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PromoteInfluencer\\Providers\\PromoteInfluencerServiceProvider"
+    ],
+    "files": [],
+    "xilancerMetaData": {
+        "plugin_type": "external",
+        "pageBuilderAddon": [
+            {
+                "addon": "Modules\\PromoteInfluencer\\Http\\PageBuilder\\Promotion\\ProjectPromotion"
+            },
+            {
+                "addon": "Modules\\PromoteInfluencer\\Http\\PageBuilder\\Promotion\\ProfilePromotion"
+            }
+        ],
+        "admin_settings": {
+            "menu_item": [
+                {
+                    "id": "promotion-freelancer-menu",
+                    "label": "Promotion Manage",
+                    "route": "admin.project.promote.settings",
+                    "parent": null,
+                    "icon": "fa-solid fa-user",
+                    "permissions": "promotion-menu-access",
+                    "class": "bg-danger"
+                },
+                {
+                    "id": "promotion-settings-menu",
+                    "label": "Promotion Packages",
+                    "route": "admin.project.promote.settings",
+                    "parent": "promotion-freelancer-menu",
+                    "permissions": "project-promote-settings-view",
+                    "class": "bg-danger"
+                },
+                {
+                    "id": "transaction-fee-settings-menu",
+                    "label": "Promotion Fee Settings",
+                    "route": "admin.promote.transaction.fee.settings",
+                    "parent": "promotion-freelancer-menu",
+                    "permissions": "promotion-transaction-fee-settings-view",
+                    "class": "bg-danger"
+                },
+                {
+                    "id": "promoted-project-list",
+                    "label": "Promoted Project List",
+                    "route": "admin.project.promoted.list",
+                    "parent": "promotion-freelancer-menu",
+                    "permissions": "promoted-project-list-view",
+                    "class": "bg-danger"
+                },
+                {
+                    "id": "promotion-settings-menu",
+                    "label": "Promoted Profile List",
+                    "route": "admin.profile.promoted.list",
+                    "parent": "promotion-freelancer-menu",
+                    "permissions": "promoted-profile-list-view",
+                    "class": "bg-danger"
+                }
+            ]
+        }
+    }
+}

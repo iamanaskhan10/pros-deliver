@@ -159,7 +159,26 @@
                                 </div>
                             </div>
                             <div class="job-description">
-                                {!! $job_details->description !!}
+                                {{-- Load the shared translation engine --}}
+                                <x-ai-translate-toggle />
+
+                                <div class="job-translate-wrap">
+                                    <div class="job-translate-body">
+                                        {!! $job_details->description !!}
+                                    </div>
+                                    <div class="job-translate-btn-row">
+                                        <button
+                                            type="button"
+                                            class="job-translate-toggle-btn"
+                                            data-target-lang="{{ config('ai.translation.default_target', 'en') }}"
+                                            data-state="original"
+                                        >
+                                            <span class="jt-spinner"></span>
+                                            <span class="jt-icon">🌐</span>
+                                            <span class="jt-label">{{ __('Translate') }}</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="tag-wraper">
                                 @foreach ($job_details->job_skills as $skill)
@@ -256,10 +275,10 @@
                         @if (Auth::guard('web')->check() &&
                                 Auth::guard('web')->user()->user_type == 2 &&
                                 Session::get('user_role') != 'client' &&
-                                auth()->user()->id != $job_details->user_id)
+                                Auth::guard('web')->user()->id != $job_details->user_id)
                             @php
                                 $proposal_count = \App\Models\JobProposal::where('job_id', $job_details->id)
-                                    ->where('freelancer_id', auth()->user()->id)
+                                    ->where('freelancer_id', Auth::guard('web')->user()->id)
                                     ->count();
                             @endphp
                             @if ($proposal_count < 1)
@@ -327,9 +346,23 @@
                                                 onkeypress="inpNum(event)">
                                         </div>
                                         <div class="input-wraper mt-3">
-                                            <label for="cover_letter" class="inf-custom-label">
-                                                {{ __('Your Cover Letter') }}
-                                            </label>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label for="cover_letter" class="inf-custom-label mb-0">
+                                                    {{ __('Your Cover Letter') }}
+                                                </label>
+                                                <button type="button"
+                                                    id="ai_generate_proposal_btn"
+                                                    data-job-id="{{ $job_details->id }}"
+                                                    class="inf-cmn-btn sm-radius style2 inf-primary-btn d-flex align-items-center gap-2"
+                                                    style="font-size: 0.8rem; padding: 0.35rem 0.85rem;">
+                                                    <span id="ai_proposal_btn_text">{{ __('✨ Generate with AI') }}</span>
+                                                    <span id="ai_proposal_spinner" class="d-none">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation: spin 1s linear infinite;">
+                                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="31.4" stroke-dashoffset="10" />
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                            </div>
                                             <textarea name="cover_letter" id="cover_letter" rows="3" class="inf-custom-input d-block w-100"
                                                 placeholder="{{ __('Write your cover letter minimum 10 characters....') }}"></textarea>
                                         </div>
@@ -549,4 +582,8 @@
         });
     </script>
     @include('frontend.pages.job-details.job-details-js')
+    @include('frontend.pages.job-details.ai-proposal-js')
+    <style>
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
 @endsection

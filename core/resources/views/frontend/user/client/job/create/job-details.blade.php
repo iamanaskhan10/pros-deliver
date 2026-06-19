@@ -46,14 +46,7 @@
                     </select>
                 </div>
             @endif
-{{--            <x-form.experience-level-dropdown :title="__('Select Experience Level')" :class="'form-control'" :name="'level'" :id="'level'"/>--}}
-                        <x-form.follower-count :title="__('Minimum Followers')"
-                                                        name="min_followers"
-                                                        id="min_followers"
-                                                        :divClass="'mb-0'"
-                                                        :class="'form--control'"
-                                                        :placeholder="__('e.g. 1000')"
-                                                        :helper="__('Enter minimum number of followers required')"/>
+            <x-form.experience-level-dropdown :title="__('Select Experience Level')" :class="'form-control'" :name="'level'" :id="'level'"/>
             <x-form.summernote
                 :title="__('Write a campaign description')"
                 :name="'description'"

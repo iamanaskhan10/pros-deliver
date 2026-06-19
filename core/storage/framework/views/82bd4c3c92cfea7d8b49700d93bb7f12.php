@@ -1,5 +1,5 @@
 <?php
-    $footer_variant = !is_null(get_footer_style()) ? get_footer_style() : '02';
+    $footer_variant = !is_null(get_footer_style()) ? get_footer_style() : '01';
 ?>
 <?php echo $__env->make('frontend.layout.partials.footer-variant.footer-'.$footer_variant, array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
