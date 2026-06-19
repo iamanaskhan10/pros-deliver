@@ -130,6 +130,7 @@ function update_static_option($key, $value)
             'option_name' => $key,
             'option_value' => $value,
         ]);
+        \Illuminate\Support\Facades\Cache::forget($key);
 
         return true;
     } else {

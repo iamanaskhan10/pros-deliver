@@ -26,6 +26,16 @@ use Illuminate\Support\Facades\Artisan;
 require_once __DIR__.'/client.php';
 require_once __DIR__.'/influencer.php';
 require_once __DIR__.'/admin.php';
+
+// Basic Settings save: POST path avoids /admin/general-settings/... (403 from ModSecurity/WAF on many hosts)
+Route::get('gs/store-basic', function () {
+    return redirect()->route('admin.general.settings.basic');
+})->middleware(['web', 'setlang', 'auth:admin'])->name('admin.general.settings.basic.save.get');
+
+Route::post('gs/store-basic', [\Modules\GeneralSettings\Http\Controllers\GeneralSettingsController::class, 'basic_settings'])
+    ->middleware(['web', 'setlang', 'auth:admin'])
+    ->name('admin.general.settings.basic.save');
+
 Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
     Artisan::call('config:clear');

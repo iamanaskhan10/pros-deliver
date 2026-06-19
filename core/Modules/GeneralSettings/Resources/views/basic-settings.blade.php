@@ -15,7 +15,7 @@
                         <h4 class="customMarkup__single__title">{{ __('Basic Settings') }}</h4>
                         <x-validation.error/>
                         <div class="customMarkup__single__inner mt-4">
-                            <form action="{{route('admin.general.settings.basic')}}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.general.settings.basic.save') }}" method="POST">
                                 @csrf
                                 <div class="single-input mb-3">
                                     <label for="site_title" class="label-title mb-1">{{__('Site Title')}}</label>
@@ -35,7 +35,7 @@
 
                                 <div class="switch mb-3">
                                     <label class="label-title mb-1"><strong>{{__('Maintenance Mode')}}</strong></label>
-                                    <input class="custom-switch" type="checkbox" id="site_maintenance_mode" name="site_maintenance_mode" @if(!empty(get_static_option('site_maintenance_mode'))) checked @endif id="site_maintenance_mode">
+                                    <input class="custom-switch" type="checkbox" id="site_maintenance_mode" name="site_maintenance_mode" @if(get_static_option('site_maintenance_mode') === 'on') checked @endif id="site_maintenance_mode">
                                     <label class="switch-label" for="site_maintenance_mode">{{__('Maintenance Mode')}}</label>
                                 </div>
                                 <div class="switch mb-3">

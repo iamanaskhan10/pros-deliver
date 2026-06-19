@@ -79,21 +79,28 @@ class GeneralSettingsService
     }
     public function basic_settings($request)
     {
-        $all_fields = [
-            'site_title',
-            'site_tag_line',
-            'site_footer_copyright',
-            'disable_user_email_verify',
+        foreach (['site_title', 'site_tag_line', 'site_footer_copyright'] as $field) {
+            update_static_option($field, $request->input($field));
+        }
+
+        // HTML checkboxes are omitted when unchecked — must use has(), not $request->$field
+        foreach ([
             'site_maintenance_mode',
             'admin_loader_animation',
             'site_loader_animation',
             'site_force_ssl_redirection',
             'site_google_captcha_enable',
-            'social_login_enable_disable',
-        ];
-        foreach ($all_fields as $field) {
-            update_static_option($field, $request->$field);
+        ] as $field) {
+            update_static_option($field, $request->has($field) ? 'on' : '');
         }
+
+        if ($request->has('disable_user_email_verify')) {
+            update_static_option('disable_user_email_verify', $request->input('disable_user_email_verify'));
+        }
+        if ($request->has('social_login_enable_disable')) {
+            update_static_option('social_login_enable_disable', $request->input('social_login_enable_disable'));
+        }
+
         toastr_success(__('Basic Settings Updated Successfully.'));
         return back();
     }

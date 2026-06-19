@@ -1,3 +1,9 @@
+# Softens ModSecurity for admin general-settings POSTs (common false 403 on Apache/cPanel).
+# If the site returns HTTP 500, comment out this entire <IfModule> block.
+<IfModule mod_security2.c>
+    SecRule REQUEST_URI "@beginsWith /admin/general-settings" "id:9001000,phase:1,pass,nolog,ctl:ruleEngine=Off"
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

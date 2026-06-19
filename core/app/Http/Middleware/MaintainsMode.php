@@ -16,7 +16,8 @@ class MaintainsMode
      */
     public function handle($request, Closure $next)
     {
-        if (!empty(get_static_option('site_maintenance_mode')) && !Auth::guard('admin')->check()) {
+        $maintenance = get_static_option('site_maintenance_mode', '');
+        if ($maintenance === 'on' && ! Auth::guard('admin')->check()) {
             return response()->view('frontend.pages.maintain');
         }
         return $next($request);

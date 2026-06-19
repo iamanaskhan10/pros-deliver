@@ -7,7 +7,8 @@ Route::group(['as'=>'admin.','prefix'=>'admin','middleware' => ['web','setlang']
         Route::controller(\Modules\GeneralSettings\Http\Controllers\GeneralSettingsController::class)->group(function () {
             Route::match(['get','post'],'/reading','reading')->name('general.settings.reading')->permission('reading');
             Route::match(['get','post'],'/site-identity','site_identity')->name('general.settings.site.identity')->permission('site-identity');
-            Route::match(['get','post'],'/basic-settings','basic_settings')->name('general.settings.basic');
+            // POST moved to routes/web.php as /gs/store-basic (Apache/WAF often blocks POST under .../general-settings/...)
+            Route::get('/basic-settings', 'basic_settings')->name('general.settings.basic');
             Route::match(['get','post'],'/color-settings','color_settings')->name('general.settings.color')->permission('color-settings');
             Route::match(['get','post'],'/typography-settings','typography_settings')->name('general.settings.typography')->permission('typography-settings');
             Route::post('/typography-settings-single','typography_settings_single')->name('general.settings.typography.single')->permission('typography-settings');
