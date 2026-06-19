@@ -35,27 +35,32 @@
 
                                 <div class="switch mb-3">
                                     <label class="label-title mb-1"><strong>{{__('Maintenance Mode')}}</strong></label>
-                                    <input class="custom-switch" type="checkbox" id="site_maintenance_mode" name="site_maintenance_mode" @if(get_static_option('site_maintenance_mode') === 'on') checked @endif id="site_maintenance_mode">
+                                    <input type="hidden" name="site_maintenance_mode" value="">
+                                    <input class="custom-switch" type="checkbox" id="site_maintenance_mode" name="site_maintenance_mode" value="on" @if(get_static_option('site_maintenance_mode') === 'on') checked @endif>
                                     <label class="switch-label" for="site_maintenance_mode">{{__('Maintenance Mode')}}</label>
                                 </div>
                                 <div class="switch mb-3">
                                     <label class="label-title mb-1"><strong>{{__('Enable/Disable Google Captcha for Register')}}</strong></label>
-                                    <input class="custom-switch" type="checkbox" id="site_google_captcha_enable" name="site_google_captcha_enable" @if(!empty(get_static_option('site_google_captcha_enable'))) checked @endif>
+                                    <input type="hidden" name="site_google_captcha_enable" value="">
+                                    <input class="custom-switch" type="checkbox" id="site_google_captcha_enable" name="site_google_captcha_enable" value="on" @if(!empty(get_static_option('site_google_captcha_enable'))) checked @endif>
                                     <label class="switch-label" for="site_google_captcha_enable">{{__('Enable/Disable Google Captcha for Register')}}</label>
                                 </div>
                                 <div class="switch mb-3">
                                     <label class="label-title mb-1"><strong>{{__('Enable Force SSL Redirection')}}</strong></label>
-                                    <input class="custom-switch" type="checkbox" id="site_force_ssl_redirection" name="site_force_ssl_redirection" @if(!empty(get_static_option('site_force_ssl_redirection'))) checked @endif>
+                                    <input type="hidden" name="site_force_ssl_redirection" value="">
+                                    <input class="custom-switch" type="checkbox" id="site_force_ssl_redirection" name="site_force_ssl_redirection" value="on" @if(!empty(get_static_option('site_force_ssl_redirection'))) checked @endif>
                                     <label class="switch-label" for="site_force_ssl_redirection">{{__('Enable Force SSL Redirection')}}</label>
                                 </div>
                                 <div class="switch mb-3">
                                     <label class="label-title mb-1"><strong>{{__('Admin Preloader Animation')}}</strong></label>
-                                    <input class="custom-switch" type="checkbox" id="admin_loader_animation" name="admin_loader_animation" @if(!empty(get_static_option('admin_loader_animation'))) checked @endif id="admin_loader_animation">
+                                    <input type="hidden" name="admin_loader_animation" value="">
+                                    <input class="custom-switch" type="checkbox" id="admin_loader_animation" name="admin_loader_animation" value="on" @if(!empty(get_static_option('admin_loader_animation'))) checked @endif>
                                     <label class="switch-label" for="admin_loader_animation">{{__('Admin Preloader Animation')}}</label>
                                 </div>
                                 <div class="switch mb-3">
                                     <label class="label-title mb-1"><strong>{{__('Site Preloader Animation')}}</strong></label>
-                                    <input class="custom-switch" type="checkbox" id="site_loader_animation" name="site_loader_animation" @if(!empty(get_static_option('site_loader_animation'))) checked @endif id="site_loader_animation">
+                                    <input type="hidden" name="site_loader_animation" value="">
+                                    <input class="custom-switch" type="checkbox" id="site_loader_animation" name="site_loader_animation" value="on" @if(!empty(get_static_option('site_loader_animation'))) checked @endif>
                                     <label class="switch-label" for="site_loader_animation">{{__('Site Preloader Animation')}}</label>
                                 </div>
                                 <button type="submit" id="update" class="btn btn-primary mt-4 pr-4 pl-4">{{__('Update Changes')}}</button>

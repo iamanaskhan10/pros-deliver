@@ -83,7 +83,7 @@ class GeneralSettingsService
             update_static_option($field, $request->input($field));
         }
 
-        // HTML checkboxes are omitted when unchecked — must use has(), not $request->$field
+        // Hidden inputs provide an empty fallback; checked boxes submit "on".
         foreach ([
             'site_maintenance_mode',
             'admin_loader_animation',
@@ -91,7 +91,7 @@ class GeneralSettingsService
             'site_force_ssl_redirection',
             'site_google_captcha_enable',
         ] as $field) {
-            update_static_option($field, $request->has($field) ? 'on' : '');
+            update_static_option($field, $request->input($field) === 'on' ? 'on' : '');
         }
 
         if ($request->has('disable_user_email_verify')) {
@@ -102,7 +102,7 @@ class GeneralSettingsService
         }
 
         toastr_success(__('Basic Settings Updated Successfully.'));
-        return back();
+        return redirect()->route('admin.general.settings.basic');
     }
 
     public function color_settings($request)
