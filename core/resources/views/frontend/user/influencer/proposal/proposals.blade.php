@@ -1,8 +1,10 @@
 @extends('frontend.layout.master')
 @section('site_title',__('My Proposals'))
 @section('style')
+    {{-- Load the shared AI Translation engine --}}
+    <x-ai-translate-toggle />
     <style>
-        #proposal_cover_letter_details{white-space:pre-line}
+        .cover-letter-text, .cover-letter-translated-text { white-space: pre-line; }
     </style>
 @endsection
 @section('content')
@@ -81,20 +83,44 @@
         (function($){
             "use strict";
             $(document).ready(function(){
-                $(document).on('click','.cover_letter_details',function(){
-                    let cover_letter = $(this).data('cover-letter');
-                    $('#proposal_cover_letter_details').text(cover_letter);
-                })
+
+                // When a proposal's "Proposal Details" button is clicked:
+                // populate the modal with this proposal's cover letter text
+                // and reset the translation state so it's fresh for each proposal.
+                $(document).on('click', '.cover_letter_details', function(){
+                    var coverLetter = $(this).data('cover-letter');
+
+                    // Populate original text
+                    $('#cover-letter-original').text(coverLetter);
+
+                    // Clear translated state
+                    $('#cover-letter-translated').text('').hide();
+                    $('#cover-letter-tx-label').hide();
+
+                    // Reset the translate pill button state
+                    var btn = $('#cover-letter-translate-btn');
+                    btn.prop('disabled', false)
+                       .data('state', 'original')
+                       .attr('data-state', 'original')
+                       .removeAttr('data-translated');
+                    btn.find('.ptx-icon').text('🌐').show();
+                    btn.find('.ptx-label').text('{{ __('Translate to English') }}');
+                    btn.find('.ptx-spinner').hide();
+
+                    // Show original
+                    $('#cover-letter-original').show();
+                });
 
                 $(document).on('click', '.pagination a', function(e){
                     e.preventDefault();
-                    let page = $(this).attr('href').split('page=')[1];
-                    subscriptions(page);
+                    var page = $(this).attr('href').split('page=')[1];
+                    loadProposals(page);
                 });
-                function subscriptions(page){
+
+                function loadProposals(page){
                     $.ajax({
-                        url:"{{ route('influencer.proposal.paginate.data').'?page='}}" + page,
-                        success:function(res){
+                        url: "{{ route('influencer.proposal.paginate.data') . '?page=' }}" + page,
+                        success: function(res){
                             $('.search_result').html(res);
                         }
                     });

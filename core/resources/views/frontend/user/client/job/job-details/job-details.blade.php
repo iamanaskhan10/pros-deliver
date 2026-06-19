@@ -1,16 +1,300 @@
 @extends('frontend.layout.master')
 @section('site_title',__('Campaign Details'))
-@section('style')
     <x-summernote.summernote-css/>
     <x-select2.select2-css/>
     <style>
+        /* ── Base Utility ── */
         .disabled-link {
             background-color: #ccc !important;
             pointer-events: none;
             cursor: default;
         }
+
+        /* ══════════════════════════════════════════════════════════════
+           AI MATCHING PANEL — Premium Design System
+        ══════════════════════════════════════════════════════════════ */
+        @keyframes ai-spin     { to { transform: rotate(360deg); } }
+        @keyframes ai-fadeIn   { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes ai-barGrow  { from { width:0; } }
+        @keyframes ai-shimmer  { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes ai-pulse    { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+        /* Panel wrapper */
+        .ai-match-panel {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 60px rgba(99,102,241,.25);
+        }
+
+        /* Gradient header */
+        .ai-match-panel-header {
+            padding: 24px 28px;
+            background: linear-gradient(135deg, rgba(99,102,241,.3), rgba(139,92,246,.3));
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        .ai-match-panel-header-left h3 {
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 0 0 4px;
+        }
+        .ai-match-panel-header-left p {
+            font-size: 12.5px; color: rgba(255,255,255,.55); margin: 0;
+        }
+
+        /* Analyze button */
+        .ai-analyze-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; border: none; border-radius: 10px;
+            padding: 11px 22px; font-size: 13.5px; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+            transition: all .2s ease; white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(99,102,241,.4);
+        }
+        .ai-analyze-btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,.5); }
+        .ai-analyze-btn:active { transform: scale(.97); }
+        .ai-analyze-btn:disabled { opacity: .65; cursor: wait; transform: none; }
+        .ai-analyze-spinner {
+            width: 15px; height: 15px;
+            border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
+            border-radius: 50%; animation: ai-spin .65s linear infinite; display: none;
+        }
+
+        /* Results area */
+        #ai-match-results {
+            padding: 20px 24px 24px;
+        }
+
+        /* Summary bar */
+        .ai-match-summary {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .ai-match-summary-count { font-size: 13px; color: rgba(255,255,255,.6); }
+        .ai-match-summary-count strong { color: #a5b4fc; }
+        .ai-match-summary-pill {
+            font-size: 11px; font-weight: 700; padding: 3px 10px;
+            border-radius: 20px; background: rgba(99,102,241,.2);
+            color: #a5b4fc; border: 1px solid rgba(99,102,241,.3);
+        }
+
+        /* Candidate list */
+        .ai-candidates-list { display: flex; flex-direction: column; gap: 12px; }
+
+        /* Candidate card */
+        .ai-candidate-card {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px; padding: 16px 18px;
+            position: relative; overflow: hidden;
+            transition: all .2s ease;
+            animation: ai-fadeIn .3s ease both;
+        }
+        .ai-candidate-card:hover {
+            background: rgba(255,255,255,.07);
+            border-color: rgba(99,102,241,.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.3);
+        }
+        .ai-candidate-top {
+            border-color: rgba(99,102,241,.5) !important;
+            background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.08)) !important;
+        }
+
+        /* Top candidate ribbon */
+        .ai-top-ribbon {
+            position: absolute; top: 0; right: 0;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; font-size: 10px; font-weight: 700;
+            padding: 4px 10px; border-radius: 0 12px 0 8px;
+        }
+
+        /* Card header */
+        .ai-candidate-header {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 12px; margin-bottom: 12px;
+        }
+        .ai-candidate-identity { display: flex; align-items: center; gap: 12px; }
+        .ai-rank-circle {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; flex-shrink: 0;
+        }
+        .ai-rank-circle.high   { background: rgba(34,197,94,.15);  color: #4ade80; border: 2px solid rgba(34,197,94,.3); }
+        .ai-rank-circle.medium { background: rgba(245,158,11,.15); color: #fbbf24; border: 2px solid rgba(245,158,11,.3); }
+        .ai-rank-circle.low    { background: rgba(239,68,68,.15);  color: #f87171; border: 2px solid rgba(239,68,68,.3); }
+        .ai-candidate-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+        .ai-candidate-meta { display: flex; gap: 12px; font-size: 11.5px; color: rgba(255,255,255,.5); }
+
+        /* Score block */
+        .ai-score-block { text-align: right; flex-shrink: 0; }
+        .ai-score-number {
+            font-size: 26px; font-weight: 800; line-height: 1;
+            margin-bottom: 2px;
+        }
+        .ai-score-number.high   { color: #4ade80; }
+        .ai-score-number.medium { color: #fbbf24; }
+        .ai-score-number.low    { color: #f87171; }
+        .ai-score-label { font-size: 10px; color: rgba(255,255,255,.35); margin-bottom: 5px; }
+        .ai-tier-pill {
+            font-size: 10px; font-weight: 700; padding: 2px 8px;
+            border-radius: 12px; display: inline-block;
+        }
+        .ai-tier-pill.high   { background: rgba(34,197,94,.15);  color: #4ade80; }
+        .ai-tier-pill.medium { background: rgba(245,158,11,.15); color: #fbbf24; }
+        .ai-tier-pill.low    { background: rgba(239,68,68,.15);  color: #f87171; }
+
+        /* Score progress bar */
+        .ai-score-bar-track {
+            height: 5px; background: rgba(255,255,255,.08);
+            border-radius: 3px; margin-bottom: 12px; overflow: hidden;
+        }
+        .ai-score-bar-fill {
+            height: 100%; border-radius: 3px; width: 0;
+            transition: width 1s cubic-bezier(.4,0,.2,1);
+        }
+        .ai-score-bar-fill.high   { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .ai-score-bar-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .ai-score-bar-fill.low    { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+        /* AI reasoning block */
+        .ai-reasoning-block {
+            display: flex; gap: 10px; margin-bottom: 12px;
+            background: rgba(99,102,241,.08); border-left: 3px solid #6366f1;
+            border-radius: 0 8px 8px 0; padding: 10px 12px;
+        }
+        .ai-reasoning-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+        .ai-reasoning-text {
+            font-size: 12.5px; color: rgba(255,255,255,.65);
+            line-height: 1.55; margin: 0; font-style: italic;
+        }
+
+        /* Action buttons */
+        .ai-candidate-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ai-outreach-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            border: none; cursor: pointer; transition: all .18s;
+        }
+        .ai-outreach-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,.4); }
+        .ai-outreach-btn:active { transform: scale(.96); }
+        .ai-view-proposal-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            background: rgba(255,255,255,.08); color: rgba(255,255,255,.75);
+            border: 1px solid rgba(255,255,255,.12); cursor: pointer; transition: all .18s;
+            text-decoration: none;
+        }
+        .ai-view-proposal-btn:hover {
+            background: rgba(255,255,255,.12); color: #fff;
+            border-color: rgba(255,255,255,.2);
+        }
+
+        /* Empty + Error states */
+        .ai-empty-state, .ai-error-state {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 10px; padding: 32px 20px; text-align: center;
+        }
+        .ai-empty-state p  { font-size: 15px; font-weight: 600; color: rgba(255,255,255,.7); margin: 0; }
+        .ai-empty-state span { font-size: 13px; color: rgba(255,255,255,.4); }
+        .ai-error-state {
+            flex-direction: row; background: rgba(239,68,68,.08);
+            border: 1px solid rgba(239,68,68,.2); border-radius: 10px;
+            padding: 14px 16px; justify-content: flex-start;
+        }
+        .ai-error-state span { font-size: 13px; color: #f87171; }
+
+        /* ══════════════════════════════════════════════════════════════
+           OUTREACH MODAL — Premium Design
+        ══════════════════════════════════════════════════════════════ */
+        #ai-outreach-modal .modal-content {
+            background: #13111e; border: 1px solid rgba(99,102,241,.2);
+            border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.6);
+        }
+        #ai-outreach-modal .modal-header {
+            background: linear-gradient(135deg, rgba(99,102,241,.2), rgba(139,92,246,.2));
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px 16px 0 0; padding: 18px 24px;
+        }
+        #ai-outreach-modal .modal-title {
+            background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 700; font-size: 16px;
+        }
+        #ai-outreach-modal .btn-close { filter: invert(1) brightness(1.5); }
+        #ai-outreach-modal .modal-body { padding: 22px 24px; }
+        #ai-outreach-modal .modal-footer {
+            border-top: 1px solid rgba(255,255,255,.08); padding: 14px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* Recipient label */
+        .ai-outreach-recipient-line {
+            font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 12px;
+        }
+        .ai-outreach-recipient-line strong {
+            color: #a5b4fc; font-weight: 600;
+        }
+
+        /* Loading skeleton */
+        .ai-outreach-loading {
+            display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
+        }
+        .ai-outreach-loading-bar {
+            height: 12px; border-radius: 6px;
+            background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.1) 50%, rgba(255,255,255,.05) 75%);
+            background-size: 200% 100%;
+            animation: ai-shimmer 1.5s infinite;
+        }
+
+        /* Generated message textarea */
+        #ai-outreach-textarea {
+            width: 100%; min-height: 120px; border-radius: 10px;
+            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            color: rgba(255,255,255,.85); font-size: 13.5px; line-height: 1.6;
+            padding: 14px; resize: vertical;
+        }
+        #ai-outreach-textarea:focus {
+            outline: none; border-color: rgba(99,102,241,.5);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        }
+
+        /* Remaining badge */
+        .ai-remaining-badge {
+            font-size: 11px; padding: 3px 10px; border-radius: 12px;
+            background: rgba(99,102,241,.15); color: #a5b4fc;
+            border: 1px solid rgba(99,102,241,.2); display: none;
+        }
+
+        /* Modal action buttons */
+        .ai-outreach-action-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: none; transition: all .18s;
+        }
+        .ai-outreach-action-btn.primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+            box-shadow: 0 4px 14px rgba(99,102,241,.35);
+        }
+        .ai-outreach-action-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(99,102,241,.45); }
+        .ai-outreach-action-btn.secondary {
+            background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+            border: 1px solid rgba(255,255,255,.12);
+        }
+        .ai-outreach-action-btn.secondary:hover { background: rgba(255,255,255,.12); color: #fff; }
+        .ai-outreach-error {
+            padding: 14px; background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.2); border-radius: 8px;
+            color: #f87171; font-size: 13px;
+        }
     </style>
-@endsection
 @section('content')
     <main>
         <x-breadcrumb.user-profile-breadcrumb :title="__('Client Campaign Details')" :innerTitle="__('Client Campaign Details')"/>
@@ -142,7 +426,27 @@
                             </div>
                             <div class="myJob-wrapper-single border-all">
                                 <div class="myJob-wrapper-single-header">
-                                    <p class="myJob-wrapper-single-title">{!! $job_details->description !!}</p>
+                                    {{-- Load the shared translation engine once --}}
+                                    <x-ai-translate-toggle />
+
+                                    {{-- Job description with translate button below --}}
+                                    <div class="job-translate-wrap">
+                                        <div class="job-translate-body">
+                                            {!! $job_details->description !!}
+                                        </div>
+                                        <div class="job-translate-btn-row">
+                                            <button
+                                                type="button"
+                                                class="job-translate-toggle-btn"
+                                                data-target-lang="{{ config('ai.translation.default_target', 'en') }}"
+                                                data-state="original"
+                                            >
+                                                <span class="jt-spinner"></span>
+                                                <span class="jt-icon">🌐</span>
+                                                <span class="jt-label">{{ __('Translate') }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="profile-border-top">
                                     <div class="flex-between job_open_close_btn_location">
@@ -167,6 +471,22 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        {{-- AI Talent Matching Panel --}}
+                        <div class="ai-match-panel mt-4">
+                            <div class="ai-match-panel-header">
+                                <div class="ai-match-panel-header-left">
+                                    <h3>✨ {{ __('AI Talent Matcher') }}</h3>
+                                    <p>{{ __('Hybrid scoring — rule-based ranking + AI reasoning for your top 5 candidates') }}</p>
+                                </div>
+                                <button class="ai-analyze-btn" id="ai-analyze-applicants-btn"
+                                        data-job-id="{{ $job_details->id }}"
+                                        title="{{ __('Score all applicants and generate AI insights') }}">
+                                    <span class="ai-analyze-spinner" id="ai-analyze-spinner"></span>
+                                    <span id="ai-analyze-btn-text">✨ {{ __('Analyze Applicants') }}</span>
+                                </button>
+                            </div>
+                            <div id="ai-match-results" style="display:none;"></div>
                         </div>
                         <div class="myJob-tabs mt-5">
                             <ul class="tabs">
@@ -309,6 +629,54 @@
                 </div>
             </div>
     </main>
+
+    {{-- AI Auto Outreach Modal --}}
+    <div class="modal fade" id="ai-outreach-modal" tabindex="-1" aria-labelledby="aiOutreachModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aiOutreachModalLabel">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle;stroke:#a5b4fc;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        {{ __('AI Outreach Message') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="ai-outreach-recipient-line">
+                        {{ __('To:') }} <strong class="ai-outreach-recipient"></strong>
+                    </p>
+
+                    {{-- Loading skeleton --}}
+                    <div class="ai-outreach-loading" id="ai-outreach-loading-state">
+                        <div class="ai-outreach-loading-bar" style="width:90%"></div>
+                        <div class="ai-outreach-loading-bar" style="width:75%"></div>
+                        <div class="ai-outreach-loading-bar" style="width:85%"></div>
+                        <div class="ai-outreach-loading-bar" style="width:60%"></div>
+                    </div>
+
+                    {{-- Generated message --}}
+                    <div class="ai-outreach-content" style="display:none;">
+                        <textarea id="ai-outreach-textarea" placeholder="{{ __('AI is generating your message...') }}"></textarea>
+                        <p style="font-size:11px;color:rgba(255,255,255,.3);margin-top:6px;">
+                            {{ __('You can edit this message before sending.') }}
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="ai-remaining-badge"></span>
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" class="ai-outreach-action-btn secondary" data-bs-dismiss="modal">
+                            {{ __('Cancel') }}
+                        </button>
+                        <button type="button" class="ai-outreach-action-btn primary" id="ai-outreach-copy-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            {{ __('Copy Message') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -316,4 +684,5 @@
     <x-summernote.summernote-js/>
     <x-select2.select2-js/>
     <x-sweet-alert.sweet-alert2-js/>
+    @include('frontend.user.client.job.job-details.ai-matching-js')
 @endsection

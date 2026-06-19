@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use \Modules\SecurityManage\Entities\LogActivity as LogActivityModel;
 
 
@@ -17,7 +18,7 @@ class LogActivity
         $log['ip'] = request()->ip() ?? '';
         $log['agent'] = request()->header('user-agent') ?? '';
         $log['type'] = $type ?? '';
-        $log['user_id'] = auth()->check() ? auth()->user()->id : '';
+        $log['user_id'] = Auth::guard('web')->check() ? Auth::guard('web')->id() : (Auth::guard('admin')->check() ? Auth::guard('admin')->id() : null);
         LogActivityModel::create($log);
     }
 }

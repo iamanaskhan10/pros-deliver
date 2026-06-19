@@ -18,9 +18,10 @@ use Modules\Chat\Http\Controllers\ClientOfferController;
 use Modules\Chat\Http\Controllers\FreelancerChatController;
 use Modules\Chat\Http\Controllers\FreelancerOfferController;
 use Modules\Chat\Http\Controllers\Admin\PusherSettingsController;
+use Modules\Chat\Http\Controllers\AIChatController;
 
 //clients routes
-Route::group(['prefix'=>'client/live','as'=>'client.','middleware'=>['auth','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang']],function() {
+Route::group(['prefix'=>'client/live','as'=>'client.','middleware'=>['auth:web','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang']],function() {
     Route::get('/chat', [ChatController::class, 'live_chat'])->name('live.chat');
     Route::post("/fetch-chat-freelancer-record", [ChatController::class,'fetch_chat_record'])->name("fetch.chat.influencer.record");
     Route::post('/message-send', [ChatController::class,'message_send'])->name("message.send");
@@ -32,7 +33,7 @@ Route::group(['prefix'=>'client/live','as'=>'client.','middleware'=>['auth','use
 
 
 //freelancer routes
-Route::group(['prefix'=>'freelancer/live','as'=>'influencer.','middleware'=>['auth','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang']],function() {
+Route::group(['prefix'=>'freelancer/live','as'=>'influencer.','middleware'=>['auth:web','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang']],function() {
     Route::get('/chat', [FreelancerChatController::class, 'live_chat'])->name('live.chat');
     Route::post("fetch-chat-client-record", [FreelancerChatController::class,'fetch_chat_record'])->name("fetch.chat.client.record");
     Route::post('/message-send', [FreelancerChatController::class,'message_send'])->name("message.send");
@@ -42,6 +43,14 @@ Route::group(['prefix'=>'freelancer/live','as'=>'influencer.','middleware'=>['au
     Route::get('/offer-details/{id}', [FreelancerOfferController::class,'offer_details'])->name("offer.details");
     Route::post('/offer-delete', [FreelancerOfferController::class,'offer_delete'])->name("offer.delete");
     Route::get('/paginate', [FreelancerOfferController::class,'pagination'])->name("offer.paginate");
+
+    // AI Smart Reply
+    Route::post('/ai/smart-replies', [AIChatController::class, 'generate'])
+         ->name('ai.smart.replies')
+         ->middleware('throttle:10,1');
+    Route::get('/ai/reply-status/{uuid}', [AIChatController::class, 'status'])
+         ->name('ai.reply.status')
+         ->middleware('throttle:60,1');
 });
 
 

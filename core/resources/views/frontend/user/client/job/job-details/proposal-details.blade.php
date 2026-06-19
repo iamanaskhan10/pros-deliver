@@ -5,7 +5,6 @@
     <x-select2.select2-css />
     <style>
         .cover_letter_details {
-            white-space: pre-line
         }
     </style>
 @endsection
@@ -359,4 +358,5 @@
     <x-select2.select2-js />
     <x-sweet-alert.sweet-alert2-js />
     @include('frontend.user.client.job.job-details.proposal-js')
+
 @endsection

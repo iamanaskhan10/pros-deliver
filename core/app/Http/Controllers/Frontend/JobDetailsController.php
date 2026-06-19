@@ -87,7 +87,7 @@ class JobDetailsController extends Controller
                         ]);
                         $attachment_name = time().'-'.uniqid().'.'.$attachment->getClientOriginalExtension();
 
-                        if(in_array($attachment->getClientOriginalExtension(), $extensions)){
+                        if(in_array($attachment->getClientOriginalExtension(), $extensions) && extension_loaded('gd')){
                             $resize_full_image = Image::make($request->attachment)
                                 ->resize(1000, 600);
                             $resize_full_image->save('assets/uploads/jobs/proposal' .'/'. $attachment_name);
@@ -99,7 +99,7 @@ class JobDetailsController extends Controller
 
                 $proposal = JobProposal::create([
                     'job_id'=>$request->job_id,
-                    'freelancer_id'=>auth()->user()->id,
+                    'freelancer_id'=>Auth::guard('web')->user()->id,
                     'client_id'=>$request->client_id,
                     'amount'=>$request->amount,
                     'duration'=>$request->duration,

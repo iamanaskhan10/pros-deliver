@@ -42,11 +42,14 @@ class LoginController extends Controller
         if($request->isMethod('post')){
             $email_or_username = filter_var($request->username, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
             if (Auth::guard('admin')->attempt([$email_or_username => $request->username, 'password' => $request->password], $request->get('remember'))) {
-                return response()->json([
-                    'msg' => __('Login Success Redirecting'),
-                    'status' => 'ok',
-                    'type' => 'success'
-                ]);
+                if ($request->ajax()) {
+                    return response()->json([
+                        'msg' => __('Login Success Redirecting'),
+                        'status' => 'ok',
+                        'type' => 'success'
+                    ]);
+                }
+                return redirect()->route('admin.dashboard');
             }
             return response()->json([
                 'msg' => sprintf(__('Your %s or Password Is Wrong !!'),$email_or_username),
@@ -86,7 +89,7 @@ class LoginController extends Controller
 
             if (Auth::guard('web')->attempt([$email_or_username => $request->username, 'password' => $request->password],$request->get('remember'))){
 
-                if(Auth::user()->user_type == 1){
+                if(Auth::guard('web')->user()->user_type == 1){
                     //security manage
                     if(moduleExists('SecurityManage')){
                         LogActivity::addToLog('User logged in','Client');

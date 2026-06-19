@@ -20,6 +20,7 @@ use App\Http\Controllers\Frontend\SkillJobController;
 use App\Http\Controllers\Frontend\SocialLoginController;
 use App\Http\Controllers\Frontend\SubcategoryJobController;
 use App\Http\Controllers\Frontend\SubcategoryProjectController;
+use App\Http\Controllers\TranslationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
@@ -44,6 +45,25 @@ Route::get('/clear-cache', function () {
 
     return 'All caches cleared successfully.';
 });
+
+// -----------------------------------------------------------------------
+// AI Translation API (Phase 4)
+// Available to any authenticated web user (freelancer or client).
+// premium.access middleware applied to POST (dispatch) only.
+// -----------------------------------------------------------------------
+Route::group([
+    'prefix'     => 'ai/translate',
+    'as'         => 'ai.translate.',
+    'middleware' => ['web', 'auth:web', 'setlang'],
+], function () {
+    Route::post('/', [TranslationController::class, 'translate'])
+         ->name('request')
+         ->middleware(['throttle:30,1']);
+    Route::get('/status/{key}', [TranslationController::class, 'status'])
+         ->name('status')
+         ->middleware(['throttle:60,1']);
+});
+
 // frontend starts
 Route::group(['middleware' => ['globalVariable', 'maintains_mode', 'setlang']], function () {
 

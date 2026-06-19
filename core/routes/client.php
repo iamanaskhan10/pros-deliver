@@ -10,18 +10,20 @@ use App\Http\Controllers\Frontend\Client\InvoiceController;
 use App\Http\Controllers\Frontend\Client\BookmarkController;
 use App\Http\Controllers\Frontend\Client\DashboardController;
 use App\Http\Controllers\Frontend\Client\NotificationController;
+use App\Http\Controllers\Frontend\Client\AIMatchingController;
+use App\Http\Controllers\Frontend\Client\AutoOutreachController;
 
 // client
 Route::group(['prefix'=>'client','as'=>'client.'],function() {
 
-    Route::group(['middleware'=>['auth','Google2FA','globalVariable', 'maintains_mode','setlang']],function(){
+    Route::group(['middleware'=>['auth:web','Google2FA','globalVariable', 'maintains_mode','setlang']],function(){
 
         Route::controller(ClientController::class)->group(function () {
             Route::get('profile/logout','logout')->name('logout');
         });
     });
 
-    Route::group(['middleware'=>['auth','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang', 'identityVerified']],function(){
+    Route::group(['middleware'=>['auth:web','userEmailVerify','Google2FA','globalVariable', 'maintains_mode','setlang', 'identityVerified']],function(){
         Route::controller(ClientController::class)->group(function () {
             Route::get('profile/settings','profile')->name('profile');
             Route::post('profile/edit-profile','edit_profile')->name('profile.edit');
@@ -53,6 +55,27 @@ Route::group(['prefix'=>'client','as'=>'client.'],function() {
             Route::post('job/proposal/filter','job_proposal_filter')->name('job.proposal.filter');
             Route::get('job/paginate/data', 'pagination')->name('job.paginate.data');
             Route::post('job/update/hourly-rate-hours', 'rate_and_hours')->name('job.hourly.rate');
+            // AI job post generator: throttled to 5 requests per minute per user
+            Route::post('job/generate-with-ai', 'generateJobPostWithAI')
+                 ->name('job.generate.ai')
+                 ->middleware('throttle:5,1');
+        });
+
+        // AI Talent Matching: throttled to 3 requests per minute
+        Route::controller(AIMatchingController::class)->group(function () {
+            Route::post('job/analyze-applicants', 'generate')
+                 ->name('ai.analyze.applicants')
+                 ->middleware('throttle:3,1');
+            Route::get('job/analyze-status/{uuid}', 'status')
+                 ->name('ai.analyze.status')
+                 ->middleware('throttle:30,1');
+        });
+
+        // AI Auto Outreach: throttled to 5 requests per minute, premium feature
+        Route::controller(AutoOutreachController::class)->group(function () {
+            Route::post('job/outreach', 'generate')
+                 ->name('ai.outreach.generate')
+                 ->middleware(['throttle:5,1', 'premium.access']);
         });
 
         // orders

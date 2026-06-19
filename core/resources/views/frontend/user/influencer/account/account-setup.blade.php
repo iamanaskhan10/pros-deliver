@@ -26,6 +26,8 @@
                         @include('frontend.user.influencer.account.sidebar')
                     </div>
                     <div>
+
+
                         @include('frontend.user.influencer.account.introduction')
                         @include('frontend.user.influencer.account.social-profile.profile')
                         @include('frontend.user.influencer.account.work.work')
@@ -49,4 +51,5 @@
     <script src="{{ asset('assets/frontend/js/social-icon-picker.js') }}"></script>
     <x-icon-picker.icon-picker />
     @include('frontend.user.influencer.account.account-setup-js')
+    @include('frontend.user.influencer.account.ai-profile-js')
 @endsection

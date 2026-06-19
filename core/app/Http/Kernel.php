@@ -84,5 +84,6 @@ class Kernel extends HttpKernel
         'checkprojectfreeze' => \App\Http\Middleware\CheckProjectFreeze::class,
         'checkjobfreeze' => \App\Http\Middleware\CheckJobFreeze::class,
         'identityVerified' => \App\Http\Middleware\UserIdentityVerify::class,
+        'premium.access'   => \App\Http\Middleware\CheckPremiumAccess::class,
     ];
 }

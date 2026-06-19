@@ -12,6 +12,8 @@ use App\Models\JobPost;
 use App\Models\JobProposal;
 use App\Models\Length;
 use App\Models\Project;
+use App\Services\AI\AIJobPostGenerator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -141,7 +143,7 @@ class JobController extends Controller
                 'category' => $request->category,
                 'duration' => $request->duration,
                 'level' => $request->level,
-                'min_followers' => $request->min_followers,
+
                 'description' => $request->description,
                 'type' => $request->type,
                 'hourly_rate' => $request->hourly_rate,
@@ -507,5 +509,36 @@ class JobController extends Controller
             'twitter_meta_description' => purify_html($meta_description),
             'twitter_meta_image' => $image_url,
         ];
+    }
+    /**
+     * Generate a structured job post using AI.
+     * Called via AJAX from the job creation form.
+     * Throttled at route level: 5 requests per minute per user.
+     */
+    public function generateJobPostWithAI(Request $request, AIJobPostGenerator $generator): JsonResponse
+    {
+        $request->validate([
+            'user_description' => 'required|string|min:10|max:500',
+        ]);
+
+        try {
+            $result = $generator->generate($request->input('user_description'));
+
+            return response()->json([
+                'status'  => 'success',
+                'data'    => $result,
+            ]);
+
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => __('AI generation failed. Please fill the form manually.'),
+            ], 500);
+        }
     }
 }

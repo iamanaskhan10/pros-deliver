@@ -123,8 +123,20 @@ abstract class PageBuilderBase
     public function get_settings()
     {
         $widget_data = !empty($this->args['id']) ? PageBuilder::find($this->args['id']) : [];
-        $widget_data = !empty($widget_data) ? unserialize($widget_data->addon_settings,['class' => false]) : [];
-        return $widget_data;
+        if (!empty($widget_data)) {
+            $settings = $widget_data->addon_settings;
+            $unserialized = @unserialize($settings, ['class' => false]);
+            
+            if ($unserialized === false && !empty($settings)) {
+                // If normal unserialize fails, attempt to fix string lengths (common during DB imports/exports)
+                $fixed_settings = preg_replace_callback('!s:(\d+):"(.*?)";!', function($m) { 
+                    return 's:'.strlen($m[2]).':"'.$m[2].'";'; 
+                }, $settings);
+                $unserialized = @unserialize($fixed_settings, ['class' => false]);
+            }
+            return is_array($unserialized) ? $unserialized : [];
+        }
+        return [];
     }
 
     /**

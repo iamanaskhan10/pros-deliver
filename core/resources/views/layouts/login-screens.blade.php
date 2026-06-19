@@ -348,6 +348,7 @@
     @yield('content')
     <!-- jquery latest version -->
     <script src="{{ asset('assets/common/js/jquery-3.7.1.min.js') }}"></script>
+    <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>')</script>
     <script src="{{ asset('assets/backend/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Toastr js -->
